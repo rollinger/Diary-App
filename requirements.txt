@@ -1,10 +1,10 @@
 # Django
 django==3.2.9  # pyup: < 3.1  # https://www.djangoproject.com/
-django-model-utils # https://github.com/jazzband/django-model-utils
-djangorestframework  # https://github.com/encode/django-rest-framework
+django-model-utils==4.2.0 # https://github.com/jazzband/django-model-utils
+djangorestframework==3.12.4  # https://github.com/encode/django-rest-framework
 jsonfield==3.1.0 # https://github.com/rpkilby/jsonfield
 
 # Dev
-Werkzeug # https://github.com/pallets/werkzeug
-django-debug-toolbar  # https://github.com/jazzband/django-debug-toolbar
-django-extensions  # https://github.com/django-extensions/django-extensions
+Werkzeug==2.0.2 # https://github.com/pallets/werkzeug
+django-debug-toolbar==3.2.2  # https://github.com/jazzband/django-debug-toolbar
+django-extensions==3.1.5  # https://github.com/django-extensions/django-extensions
