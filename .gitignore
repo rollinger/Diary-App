@@ -277,4 +277,4 @@ memo/media/
 .envs/*
 !.envs/.local/
 
-#memo-a-*.json
+*.sqlite3
