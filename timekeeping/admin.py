@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from timekeeping.models import Project, Task, Assignment
+from timekeeping.models import Project, Task, Assignment, Worklog
 
 class TaskInline(admin.TabularInline):
     model = Task
@@ -113,48 +113,110 @@ class TaskAdmin(admin.ModelAdmin):
         )
 	)
 
+
+class WorklogInline(admin.TabularInline):
+    model = Worklog
+    fk_name = "assignment"
+    show_change_link = True
+    extra = 1
+    fields = ("start", "stop", "time", "notes")
+
+
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    """ Admin for Assignments
+	""" Admin for Assignments
 	"""
-    save_on_top = True
-    list_display = (
-        "id",
-        "__str__",
+	save_on_top = True
+	list_display = (
+		"id",
+		"__str__",
 		"max_workload",
 		"allowed"
 	)
-    list_display_links = ("__str__",)
-    readonly_fields = [
-        "id",
-        "created_at",
-        "updated_at",
-    ]
-    search_fields = ["task", "user"]
-    autocomplete_fields = ["task", "user"]
-    list_filter = ("allowed","max_workload",)
-    list_editable = (
-        "allowed",
-        "max_workload",
+	list_display_links = ("__str__",)
+	readonly_fields = [
+		"id",
+		"created_at",
+		"updated_at",
+	]
+	inlines = [
+		WorklogInline,
+	]
+	search_fields = ["task", "user"]
+	autocomplete_fields = ["task", "user"]
+	list_filter = ("allowed","max_workload",)
+	list_editable = (
+		"allowed",
+		"max_workload",
+	)
+	fieldsets = (
+		(
+			None,
+			{
+				"fields": (
+					("task", "user"),
+					("max_workload", "allowed"),
+				)
+			},
+		),
+		(
+			_("System Information"),
+			{
+				"classes": ("collapse",),
+				"fields": (
+					("id",),
+					("created_at", "updated_at"),
+				),
+			},
+		)
+	)
+
+@admin.register(Worklog)
+class WorklogAdmin(admin.ModelAdmin):
+	""" Admin for Assignments
+	"""
+	save_on_top = True
+	list_display = (
+		"id",
+		"assignment",
+		"start",
+		"stop",
+		"time"
+	)
+	list_display_links = ("assignment",)
+	readonly_fields = [
+		"id",
+		"created_at",
+		"updated_at",
+	]
+	search_fields = ["assignment",]
+	autocomplete_fields = ["assignment",]
+	date_hierarchy = 'start'
+	list_editable = (
+		"start",
+		"stop",
+		"time"
+	)
+	fieldsets = (
+		(
+			None,
+			{
+				"fields": (
+					"assignment",
+					("start", "stop", "time",),
+					"notes",
+				)
+			},
+		),
+		(
+			_("System Information"),
+			{
+				"classes": ("collapse",),
+				"fields": (
+					("id",),
+					("created_at", "updated_at"),
+				),
+			},
+		)
     )
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    ("task", "user"),
-                    ("max_workload", "allowed"),
-                )
-            },
-        ),
-        (
-            _("System Information"),
-            {
-                "classes": ("collapse",),
-                "fields": (
-                    ("id",),
-                    ("created_at", "updated_at"),
-                ),
-            },
-        )
-    )
+	

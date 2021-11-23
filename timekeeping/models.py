@@ -166,3 +166,47 @@ class Assignment(BaseModel):
 
 	def __str__(self):
 		return _("%s working on \"%s\"") % (self.user, self.task)
+
+
+class Worklog(BaseModel):
+	""" Work log Model
+	A User logs work for an assignment. The work was start
+	"""
+
+	class Meta:
+		verbose_name = _("Worklog")
+		verbose_name_plural = _("Worklog")
+		ordering = ("start", "stop", "time")
+
+	assignment = models.ForeignKey(
+        Assignment,
+        help_text=_("Worklog for assignments"),
+        related_name="worklogs",
+        on_delete=models.CASCADE,
+    )
+
+	start = models.DateTimeField(
+		_('Started at'), help_text=_("Datetime when the work was started"), null=True, blank=True
+	)
+
+	stop = models.DateTimeField(
+		_('Ended on'), help_text=_("Datetime when the work was stopped"), null=True, blank=True
+	)
+
+	time = models.DurationField(
+		_('Manual Time'), help_text=_("Log manual time"), null=True, blank=True
+	)
+
+	notes = models.TextField(
+        _("Notes"),
+        help_text=_("Notes / References for the log"),
+        max_length=2000,
+        blank=True,
+    )
+
+	@property
+	def workload(self):
+		return self.time
+
+	def __str__(self):
+		return _("%s for %s") % (self.assignment, self.time)
