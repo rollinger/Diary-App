@@ -24,5 +24,6 @@ urlpatterns = [
     # API base url
     path("api/", include("worklog.api_router")),
     # DRF auth token
-    path("auth-token/", obtain_auth_token),
+    #path("auth-token/", obtain_auth_token),
+    path('api-auth/', include('rest_framework.urls'))
 ]

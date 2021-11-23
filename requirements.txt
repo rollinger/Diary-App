@@ -3,6 +3,8 @@ django==3.2.9  # pyup: < 3.1  # https://www.djangoproject.com/
 django-model-utils==4.2.0 # https://github.com/jazzband/django-model-utils
 djangorestframework==3.12.4  # https://github.com/encode/django-rest-framework
 jsonfield==3.1.0 # https://github.com/rpkilby/jsonfield
+Markdown==3.3.6   # https://pypi.org/project/Markdown/
+django-filter==21.1  # https://pypi.org/project/django-filter/
 
 # Dev
 Werkzeug==2.0.2 # https://github.com/pallets/werkzeug
