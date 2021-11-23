@@ -1,3 +1,5 @@
+import datetime
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -44,10 +46,17 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 		view_name='api:project-detail',
 		lookup_field="slug"
 	)
+	assignments = serializers.HyperlinkedRelatedField(
+		many=True,
+		read_only=True,
+		# queryset=Assignment.objects.all(),
+		view_name='api:assignment-detail',
+		lookup_field="id"
+	)
 
 	class Meta:
 		model = Task
-		fields = ["project", "title", "description", "status",]
+		fields = ["project", "title", "description", "status", "assignments"]
 		extra_kwargs = {
 			"url": {"view_name": "api:task-detail", "lookup_field": "slug"}
 		}
@@ -56,13 +65,15 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
 	task = serializers.HyperlinkedRelatedField(
 		many=False,
-		read_only=True,
+		read_only=False,
+		queryset=Task.objects.all(),
 		view_name='api:task-detail',
 		lookup_field="slug"
 	)
 	user = serializers.HyperlinkedRelatedField(
 		many=False,
-		read_only=True,
+		read_only=False,
+		queryset=User.objects.all(),
 		view_name='api:user-detail',
 		lookup_field="username"
 	)
@@ -72,9 +83,15 @@ class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
 		view_name='api:worklog-detail',
 		lookup_field="id"
 	)
+	allowed = serializers.BooleanField(
+		default=True
+	)
+	max_workload = serializers.DurationField(
+		default = datetime.timedelta(0)
+	)
 	class Meta:
 		model = Assignment
-		fields = ["task", "user", "allowed", "max_workload", "worklogs"]
+		fields = ["user", "task", "max_workload", "allowed", "worklogs"]
 		extra_kwargs = {
 			"url": {"view_name": "api:assignment-detail", "lookup_field": "id"}
 		}
@@ -83,18 +100,15 @@ class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
 class WorklogSerializer(serializers.HyperlinkedModelSerializer):
 	assignment = serializers.HyperlinkedRelatedField(
 		many=False,
-		read_only=True,
+		read_only=False,
+		queryset=Assignment.objects.all(),
 		view_name='api:assignment-detail',
 		lookup_field="id"
 	)
-
-	user = serializers.HyperlinkedRelatedField(
-		many=False,
-		read_only=True,
-		view_name='api:user-detail',
-		lookup_field="username"
+	time = serializers.DurationField(
+		label=_("Manual Time"),
+		default = datetime.timedelta(0)
 	)
-
 	class Meta:
 		model = Worklog
 		fields = ["assignment", "start", "stop", "time", "notes"]

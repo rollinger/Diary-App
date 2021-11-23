@@ -1,3 +1,4 @@
+from enum import unique
 import uuid
 
 from django.utils.text import slugify
@@ -34,6 +35,7 @@ class Project(BaseModel):
 		verbose_name = _("Project")
 		verbose_name_plural = _("Projects")
 		ordering = ("title",)
+		unique_together = ("owner", "title")
 
 	owner = models.ForeignKey(
         User,
@@ -84,6 +86,7 @@ class Task(BaseModel):
 		verbose_name = _("Task")
 		verbose_name_plural = _("Tasks")
 		ordering = ("project", "title")
+		unique_together = ("project", "title")
 
 	project = models.ForeignKey(
         Project,
@@ -124,7 +127,7 @@ class Task(BaseModel):
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
-			self.slug = slugify(self.title)
+			self.slug = slugify(self.project, self.title)
 		super(Task, self).save(*args, **kwargs)
 
 
@@ -137,6 +140,7 @@ class Assignment(BaseModel):
 		verbose_name = _("Assignment")
 		verbose_name_plural = _("Assignments")
 		ordering = ("task", "user")
+		unique_together = ("user", "task")
 	
 	task = models.ForeignKey(
         Task,
@@ -150,6 +154,12 @@ class Assignment(BaseModel):
         help_text=_("User of assignment"),
         related_name="assignments",
         on_delete=models.CASCADE,
+    )
+
+	slug = models.SlugField(
+        _("Unique Slug Identifier"), 
+		max_length=255, 
+		allow_unicode=True, unique=True
     )
 
 	allowed = models.BooleanField(
@@ -167,6 +177,11 @@ class Assignment(BaseModel):
 	def __str__(self):
 		return _("%s working on \"%s\"") % (self.user, self.task)
 
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			self.slug = slugify(self.user, self.task)
+		super(Assignment, self).save(*args, **kwargs)
+
 
 class Worklog(BaseModel):
 	""" Work log Model
@@ -177,12 +192,20 @@ class Worklog(BaseModel):
 		verbose_name = _("Worklog")
 		verbose_name_plural = _("Worklog")
 		ordering = ("start", "stop", "time")
+		# TODO: Disallow logging for same assignment at the same timeframe
+		unique_together = ("assignment", "created_at") 
 
 	assignment = models.ForeignKey(
         Assignment,
         help_text=_("Worklog for assignments"),
         related_name="worklogs",
         on_delete=models.CASCADE,
+    )
+
+	slug = models.SlugField(
+        _("Unique Slug Identifier"), 
+		max_length=255, 
+		allow_unicode=True, unique=True
     )
 
 	start = models.DateTimeField(
@@ -210,3 +233,8 @@ class Worklog(BaseModel):
 
 	def __str__(self):
 		return _("%s for %s") % (self.assignment, self.time)
+
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			self.slug = slugify(self.assignment, self.created_at)
+		super(Worklog, self).save(*args, **kwargs)
