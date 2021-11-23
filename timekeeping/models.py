@@ -1,29 +1,28 @@
 import uuid
 
+from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+
 User = get_user_model()
 
+
 class BaseModel(models.Model):
-    """
-    Defines the abstract timestamps, uuid and slug for Timekeeping models
-    """
+	"""
+	Defines the abstract timestamps, uuid and slug for Timekeeping models
+	"""
 
-    class Meta:
-        abstract = True
+	class Meta:
+		abstract = True
 
-	unique_id = models.UUIDField(
-		default=uuid.uuid4, 
-		editable=False, unique=True
+	id = models.UUIDField(
+		primary_key=True, default=uuid.uuid4, 
+		editable=False, unique=True, name='id'
 	)
-	slug = models.SlugField(
-        _("Unique Slug Identifier"), 
-		max_length=255, allow_unicode=True, unique=True
-    )
-    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+	created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+	updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
 
 
@@ -47,14 +46,26 @@ class Project(BaseModel):
         _("Title"),
         help_text=_("Title of the Project"),
         max_length=255,
-        blank=True,
     )
-	description = models.CharField(
+	slug = models.SlugField(
+        _("Unique Slug Identifier"), 
+		max_length=255, 
+		allow_unicode=True, unique=True
+    )
+	description = models.TextField(
         _("Description"),
         help_text=_("Description of the Project"),
         max_length=2000,
         blank=True,
     )
+
+	def __str__(self):
+		return self.title
+
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			self.slug = slugify(self.title)
+		super(Project, self).save(*args, **kwargs)
 
 
 TASK_STATE_CHOICE = (
@@ -85,10 +96,15 @@ class Task(BaseModel):
         _("Title"),
         help_text=_("Title of the Task"),
         max_length=255,
-        blank=True,
     )
 
-	description = models.CharField(
+	slug = models.SlugField(
+        _("Unique Slug Identifier"), 
+		max_length=255, 
+		allow_unicode=True, unique=True
+    )
+
+	description = models.TextField(
         _("Description"),
         help_text=_("Description of the Task"),
         max_length=2000,
@@ -102,3 +118,11 @@ class Task(BaseModel):
         choices=TASK_STATE_CHOICE,
         default="planned",
     )
+
+	def __str__(self):
+		return self.title
+
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			self.slug = slugify(self.title)
+		super(Task, self).save(*args, **kwargs)
