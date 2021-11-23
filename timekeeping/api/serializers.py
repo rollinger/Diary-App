@@ -34,23 +34,23 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 		}
 
 
-
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
-    project   = serializers.HyperlinkedRelatedField(
-        many=False,
-        read_only=True,
-        view_name='api:project-detail',
-        lookup_field="slug"
-    )
+	""" Serializer for a Task
+	"""
+	project   = serializers.HyperlinkedRelatedField(
+		many=False,
+		read_only=False,
+		queryset=Project.objects.all(),
+		view_name='api:project-detail',
+		lookup_field="slug"
+	)
 
-    status    = serializers.CharField(source='get_status_display')
-
-    class Meta:
-        model = Task
-        fields = ["project", "title", "description", "status", "slug",]
-        extra_kwargs = {
-            "url": {"view_name": "api:task-detail", "lookup_field": "slug"}
-        }
+	class Meta:
+		model = Task
+		fields = ["project", "title", "description", "status",]
+		extra_kwargs = {
+			"url": {"view_name": "api:task-detail", "lookup_field": "slug"}
+		}
 
 
 class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
