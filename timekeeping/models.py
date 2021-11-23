@@ -158,9 +158,9 @@ class Assignment(BaseModel):
 		default=True
 	)
 
-	max_workload = models.PositiveSmallIntegerField(
+	max_workload = models.DurationField(
 		_("Maximum Workload"),
-		help_text = _('Max workload in hours. 0 is unlimited hours'), 
+		help_text = _('Max workload in hours. If left zero no workload cap.'), 
 		default=0
 	)
 
