@@ -38,6 +38,10 @@ class WorklogViewSet(ModelViewSet):
     lookup_field = "id"
     permission_classes = [permissions.IsAdminUser]
 
+    # @action(methods=['put'], detail=True, permission_classes=[IsAuthenticated])
+    # def add_worklog(self, request, pk=None):
+    #     pass
+
 #
 # Specific Views for Authenticated Users who do the time logging (worker)
 #
