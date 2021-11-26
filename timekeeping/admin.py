@@ -57,11 +57,12 @@ class ProjectAdmin(admin.ModelAdmin):
 	)
 
 class AssignmentInline(admin.TabularInline):
-    model = Assignment
-    fk_name = "task"
-    show_change_link = True
-    extra = 1
-    fields = ("user", "allowed", "max_workload",)
+	model = Assignment
+	fk_name = "task"
+	show_change_link = True
+	autocomplete_fields = ["user",]
+	extra = 1
+	fields = ("user", "allowed", "max_workload",)
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -73,7 +74,6 @@ class TaskAdmin(admin.ModelAdmin):
 		"project",
 		"title",
 		"status",
-		"slug"
 	)
 	list_display_links = ("title",)
 	readonly_fields = [
@@ -164,7 +164,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 			{
 				"classes": ("collapse",),
 				"fields": (
-					("id",),
+					("id", "slug"),
 					("created_at", "updated_at"),
 				),
 			},
@@ -213,7 +213,7 @@ class WorklogAdmin(admin.ModelAdmin):
 			{
 				"classes": ("collapse",),
 				"fields": (
-					("id",),
+					("id", "slug"),
 					("created_at", "updated_at"),
 				),
 			},

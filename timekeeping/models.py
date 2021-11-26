@@ -127,7 +127,7 @@ class Task(BaseModel):
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
-			self.slug = slugify(self.project, self.title)
+			self.slug = slugify(self.project.title + "-" + self.title)
 		super(Task, self).save(*args, **kwargs)
 
 
@@ -179,7 +179,7 @@ class Assignment(BaseModel):
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
-			self.slug = slugify(self.user, self.task)
+			self.slug = slugify(self.user.username + "-" + self.task.title)
 		super(Assignment, self).save(*args, **kwargs)
 
 
@@ -232,9 +232,10 @@ class Worklog(BaseModel):
 		return self.time
 
 	def __str__(self):
-		return _("%s for %s") % (self.assignment, self.time)
+		return _("%s (Workload: %s)") % (self.assignment, self.time)
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
-			self.slug = slugify(self.assignment, self.created_at)
+			self.slug = slugify(self.assignment.task.title + "-" + 
+			self.assignment.user.username)
 		super(Worklog, self).save(*args, **kwargs)
