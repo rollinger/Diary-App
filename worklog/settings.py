@@ -40,12 +40,14 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "django_extensions",
     "rest_framework",
     "rest_framework.authtoken",
 ]
 
 LOCAL_APPS = [
-    "timekeeping.apps.TimekeepingConfig"
+    "users.apps.UsersConfig",
+    "timekeeping.apps.TimekeepingConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

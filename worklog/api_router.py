@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
 
-from user.api.views import UserViewSet
+from users.api.views import UserViewSet
 from timekeeping.api.views import (
 	ProjectViewSet, 
 	TaskViewSet, 

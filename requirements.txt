@@ -7,6 +7,22 @@ Markdown==3.3.6   # https://pypi.org/project/Markdown/
 django-filter==21.1  # https://pypi.org/project/django-filter/
 
 # Dev
-Werkzeug==2.0.2 # https://github.com/pallets/werkzeug
-django-debug-toolbar==3.2.2  # https://github.com/jazzband/django-debug-toolbar
-django-extensions==3.1.5  # https://github.com/django-extensions/django-extensions
+Werkzeug==2.0.2 				# https://github.com/pallets/werkzeug
+django-debug-toolbar==3.2.2  	# https://github.com/jazzband/django-debug-toolbar
+django-extensions==3.1.5  		# https://github.com/django-extensions/django-extensions
+
+# Test
+factory-boy==3.2.1		# https://github.com/FactoryBoy/factory_boy
+pytest==6.2.5  			# https://github.com/pytest-dev/pytest
+pytest-django==4.4.0  	# https://github.com/Frozenball/pytest-sugar
+pytest-sugar==0.9.4  	# https://github.com/pytest-dev/pytest-django
+
+
+# Documentation
+Sphinx==4.3.0					# https://github.com/sphinx-doc/sphinx
+sphinx-autobuild==2021.3.14 	# https://github.com/GaretJax/sphinx-autobuild
+
+
+
+
+

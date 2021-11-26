@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from timekeeping.models import Assignment, Project, Task, Worklog
 
-from user.api.serializers import UserSerializer
+from users.api.serializers import UserSerializer
 
 User = get_user_model()
 
