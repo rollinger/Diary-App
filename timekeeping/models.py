@@ -1,3 +1,4 @@
+import datetime
 from enum import unique
 import uuid
 
@@ -18,6 +19,18 @@ TASK_STATE_CHOICE = (
 	("finished",_("Task is finished")),
 )
 
+LOG_DEFAULT_JSON = {
+    "start": None,
+    "stop": None,
+    "time": None,
+    "notes": "",
+	"completed": False}
+
+def get_current_log_default_json():
+	return LOG_DEFAULT_JSON
+
+def get_archive_log_list_json():
+	return []
 
 class BaseModel(models.Model):
 	"""
@@ -99,7 +112,7 @@ class Task(BaseModel):
 	status: task lifecycle. started allows logging
 
 
-	url: /api/projects/<project_slug>/tasks/<task_slug>
+	url: /api/tasks/<slug>
 	"""
 
 	class Meta:
@@ -161,7 +174,7 @@ class TaskAssignment(BaseModel):
 	max_workload: maximum workload allowed for the assignment
 
 
-	url: /api/projects/<project_slug>/tasks/<task_slug>/assignment/<uuid>
+	url: /api/assignment/<uuid>
 	"""
 
 	class Meta:
@@ -199,105 +212,60 @@ class TaskAssignment(BaseModel):
 	current_workload = models.DurationField(
 		_("Current Workload"),
 		help_text = _('Work currently logged on this assignment'), 
-		default=0
+		null=True, blank=True
 	)
 
-	def can_start_log_time(self):
+	current_log = models.JSONField(
+		_("Current Log"), help_text=_(""), 
+		default=get_current_log_default_json
+	)
+
+	archived_log = models.JSONField(
+		_("Archived Logs"), help_text=_(""), 
+		default=get_archive_log_list_json
+	)
+
+	def can_start_log_time(self, user):
 		"""Checks if all conditions are met to start logging time.
 		- Task is started
 		- Assignment is allowed
 		- current workload < max workload
 		"""
-		pass
+		if (self.user == user and
+			self.task.status == 'started' and
+			self.allowed and
+			self.current_workload < self.max_workload):
+			return True
+		return False
 
-	def start_log_time(self):
-		"""Starts a new worklog:
-		Creates a new worklog and set start to now
+	def start_log_time(self, user, notes=None):
+		""" Starts a new worklog:
+		Creates a new worklog and set start to now, 
+		appends notes if passed.
 		"""
-		pass
+		if self.can_start_log_time(user):
+			self.current_log = get_current_log_default_json()
+			self.current_log['start'] = datetime.datetime.now()
+			if notes:
+				self.current_log['notes'] = notes
+			self.save()
+			return True
+		return False
 
 	def end_log_time(self):
-		"""Ends a worklog"""
-		pass
+		""" Stops a worklog: 
+		Logs stop time, calcs the duration and sets to completed
+		"""
+		if self.current_log['completed'] == False:
+			self.current_log['stop'] = datetime.datetime.now()
+			self.current_log['time'] = self.current_log['stop'] - self.current_log['start']
+			self.current_log['completed'] = True
+			self.archived_log.append( self.current_log )
+			return True
+		return False
 
 	def __str__(self):
 		return _("%s working on \"%s\"") % (self.user, self.task)
 
 	def save(self, *args, **kwargs):
 		super(TaskAssignment, self).save(*args, **kwargs)
-
-
-class Worklog(BaseModel):
-	""" Work Logging Model
-	A User logs work for an assignment. The work was start
-
-	assignment: associated to an assignment
-	start: work start datetime
-	stop: work end datetime
-	time: duration of the work / manual time
-
-	notes: worker notes or work references
-
-	url: /api/projects/<project_slug>/tasks/<task_slug>/assignment/<uuid>/log/<user>/<uuid>
-	"""
-
-	class Meta:
-		verbose_name = _("Worklog")
-		verbose_name_plural = _("Worklog")
-		ordering = ("start", "stop", "time")
-		# TODO: Disallow logging for same assignment at the same timeframe...
-		unique_together = ("assignment", "created_at") 
-
-	assignment = models.ForeignKey(
-        TaskAssignment,
-        help_text=_("Worklog for assignments"),
-        related_name="worklogs",
-        on_delete=models.CASCADE,
-    )
-
-	completed = models.BooleanField(
-		_("Completed"),
-		help_text = _("The worklog instance is completed."), 
-		default=False
-	)
-
-	start = models.DateTimeField(
-		_('Started at'), help_text=_("Datetime when the work was started"), 
-		null=True, blank=True
-	)
-
-	stop = models.DateTimeField(
-		_('Ended on'), help_text=_("Datetime when the work was stopped"), 
-		null=True, blank=True
-	)
-
-	time = models.DurationField(
-		_('Manual Time'), help_text=_("Log manual time"), 
-		null=True, blank=True
-	)
-
-	notes = models.TextField(
-        _("Notes"),
-        help_text=_("Notes / References for the log"),
-        max_length=2000,
-        blank=True,
-    )
-
-	@property
-	def workload(self):
-		return self.time
-
-	@property
-	def manual_time(self):
-		if self.time and not self.start or not self.stop:
-			return True
-		return False
-
-	def __str__(self):
-		return _("%s (%s)") % (self.assignment, self.time)
-
-	def save(self, *args, **kwargs):
-		if self.completed == True and self.time == None:
-			# Calculate time by start and stop if no manual time was given.
-			self.time = self.stop - self.start
-		super(Worklog, self).save(*args, **kwargs)

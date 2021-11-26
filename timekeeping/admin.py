@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from django.db import models
+from django_json_widget.widgets import JSONEditorWidget
 
-from timekeeping.models import Project, Task, TaskAssignment, Worklog
+from timekeeping.models import Project, Task, TaskAssignment
 
 class TaskInline(admin.TabularInline):
     model = Task
@@ -17,10 +19,10 @@ class ProjectAdmin(admin.ModelAdmin):
 	"""
 	save_on_top = True
 	list_display = (
-		"id",
 		"owner",
 		"title",
-		"slug"
+		"slug",
+		"id",
 	)
 	list_display_links = ("title",)
 	readonly_fields = [
@@ -70,10 +72,10 @@ class TaskAdmin(admin.ModelAdmin):
 	"""
 	save_on_top = True
 	list_display = (
-		"id",
 		"project",
 		"title",
 		"status",
+		"id",
 	)
 	list_display_links = ("title",)
 	readonly_fields = [
@@ -114,37 +116,29 @@ class TaskAdmin(admin.ModelAdmin):
 	)
 
 
-class WorklogInline(admin.TabularInline):
-    model = Worklog
-    fk_name = "assignment"
-    show_change_link = True
-    extra = 1
-    fields = ("start", "stop", "time", "notes")
-
-
 @admin.register(TaskAssignment)
 class TaskAssignmentAdmin(admin.ModelAdmin):
 	""" Admin for Task Assignments
 	"""
 	save_on_top = True
 	list_display = (
-		"id",
-		"__str__",
+		"task",
+		"user",
+		"current_workload",
 		"max_workload",
-		"allowed"
+		"allowed",
+		"id",
 	)
-	list_display_links = ("__str__",)
+	list_display_links = ("user",)
 	readonly_fields = [
 		"id",
+		"current_workload",
 		"created_at",
 		"updated_at",
 	]
-	inlines = [
-		WorklogInline,
-	]
 	search_fields = ["task", "user"]
 	autocomplete_fields = ["task", "user"]
-	list_filter = ("allowed","max_workload",)
+	list_filter = ("allowed", "max_workload",)
 	list_editable = (
 		"allowed",
 		"max_workload",
@@ -155,7 +149,8 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 			{
 				"fields": (
 					("task", "user"),
-					("max_workload", "allowed"),
+					("max_workload", "current_workload", "allowed"),
+					"log",
 				)
 			},
 		),
@@ -164,59 +159,12 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 			{
 				"classes": ("collapse",),
 				"fields": (
-					("id", "slug"),
+					("id",),
 					("created_at", "updated_at"),
 				),
 			},
 		)
 	)
-
-@admin.register(Worklog)
-class WorklogAdmin(admin.ModelAdmin):
-	""" Admin for Assignments
-	"""
-	save_on_top = True
-	list_display = (
-		"id",
-		"assignment",
-		"start",
-		"stop",
-		"time"
-	)
-	list_display_links = ("assignment",)
-	readonly_fields = [
-		"id",
-		"created_at",
-		"updated_at",
-	]
-	search_fields = ["assignment",]
-	autocomplete_fields = ["assignment",]
-	date_hierarchy = 'start'
-	list_editable = (
-		"start",
-		"stop",
-		"time"
-	)
-	fieldsets = (
-		(
-			None,
-			{
-				"fields": (
-					"assignment",
-					("start", "stop", "time",),
-					"notes",
-				)
-			},
-		),
-		(
-			_("System Information"),
-			{
-				"classes": ("collapse",),
-				"fields": (
-					("id", "slug"),
-					("created_at", "updated_at"),
-				),
-			},
-		)
-    )
-	
+	formfield_overrides = {
+        models.JSONField: {'widget': JSONEditorWidget},
+    }
