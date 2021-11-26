@@ -12,7 +12,7 @@ User = get_user_model()
 
 class BaseModel(models.Model):
 	"""
-	Defines the abstract timestamps, uuid and slug for Timekeeping models
+	Defines the abstract timestamps and unique id for subsequent timekeeping models
 	"""
 
 	class Meta:
@@ -170,7 +170,7 @@ class Assignment(BaseModel):
 
 	max_workload = models.DurationField(
 		_("Maximum Workload"),
-		help_text = _('Max workload in hours. If left zero no workload cap.'), 
+		help_text = _('Max workload in time. If left zero no workload cap.'), 
 		default=0
 	)
 
