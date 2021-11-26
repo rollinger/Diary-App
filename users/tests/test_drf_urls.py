@@ -6,6 +6,11 @@ User = get_user_model()
 
 pytestmark = pytest.mark.django_db
 
+def test_user_has_auth_token(user: User):
+    assert(
+        user.auth_token != None
+    )
+
 def test_user_detail(user: User):
     assert (
         reverse("api:user-detail", kwargs={"username": user.username})
