@@ -1,4 +1,5 @@
 import pytest
+from rest_framework.authtoken.models import Token
 from django.urls import resolve, reverse
 from django.contrib.auth import get_user_model
 
@@ -7,9 +8,9 @@ User = get_user_model()
 pytestmark = pytest.mark.django_db
 
 def test_user_has_auth_token(user: User):
-    assert(
-        user.auth_token != None
-    )
+    assert(user.auth_token != None)
+    assert(type(user.auth_token) == Token)
+
 
 def test_user_detail(user: User):
     assert (
