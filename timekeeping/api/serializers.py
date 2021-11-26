@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from timekeeping.models import Assignment, Project, Task, Worklog
+from timekeeping.models import TaskAssignment, Project, Task, Worklog
 
 from users.api.serializers import UserSerializer
 
@@ -49,7 +49,7 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 	assignments = serializers.HyperlinkedRelatedField(
 		many=True,
 		read_only=True,
-		# queryset=Assignment.objects.all(),
+		# queryset=TaskAssignment.objects.all(),
 		view_name='api:assignment-detail',
 		lookup_field="id"
 	)
@@ -62,7 +62,7 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
 		}
 
 
-class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
+class TaskAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 	task = serializers.HyperlinkedRelatedField(
 		many=False,
 		read_only=False,
@@ -90,7 +90,7 @@ class AssignmentSerializer(serializers.HyperlinkedModelSerializer):
 		default = datetime.timedelta(0)
 	)
 	class Meta:
-		model = Assignment
+		model = TaskAssignment
 		fields = ["user", "task", "max_workload", "allowed", "worklogs"]
 		extra_kwargs = {
 			"url": {"view_name": "api:assignment-detail", "lookup_field": "id"}
@@ -101,7 +101,7 @@ class WorklogSerializer(serializers.HyperlinkedModelSerializer):
 	assignment = serializers.HyperlinkedRelatedField(
 		many=False,
 		read_only=False,
-		queryset=Assignment.objects.all(),
+		queryset=TaskAssignment.objects.all(),
 		view_name='api:assignment-detail',
 		lookup_field="id"
 	)

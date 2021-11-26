@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from timekeeping.models import Project, Task, Assignment, Worklog
+from timekeeping.models import Project, Task, TaskAssignment, Worklog
 
-from .serializers import ProjectSerializer, TaskSerializer, AssignmentSerializer, WorklogSerializer
+from .serializers import ProjectSerializer, TaskSerializer, TaskAssignmentSerializer, WorklogSerializer
 
 User = get_user_model()
 
@@ -25,9 +25,9 @@ class TaskViewSet(ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
 
-class AssignmentViewSet(ModelViewSet):
-    serializer_class = AssignmentSerializer
-    queryset = Assignment.objects.all()
+class TaskAssignmentViewSet(ModelViewSet):
+    serializer_class = TaskAssignmentSerializer
+    queryset = TaskAssignment.objects.all()
     lookup_field = "id"
     permission_classes = [permissions.IsAdminUser]
 
@@ -46,9 +46,9 @@ class WorklogViewSet(ModelViewSet):
 # Specific Views for Authenticated Users who do the time logging (worker)
 #
 
-class AssignmentWorkerViewSet(ModelViewSet):
-    serializer_class = AssignmentSerializer
-    queryset = Assignment.objects.all()
+class TaskAssignmentWorkerViewSet(ModelViewSet):
+    serializer_class = TaskAssignmentSerializer
+    queryset = TaskAssignment.objects.all()
     lookup_field = "id"
     permission_classes = [permissions.IsAuthenticated]
 

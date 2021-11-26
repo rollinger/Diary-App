@@ -10,6 +10,15 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
+TASK_STATE_CHOICE = (
+	# Task lifecycle. Only started can be logged. Default is started
+	("planned",_("Task is planned")),
+	("started",_("Task is started")),
+	("hold",_("Task is on hold")),
+	("finished",_("Task is finished")),
+)
+
+
 class BaseModel(models.Model):
 	"""
 	Defines the abstract timestamps and unique id for subsequent timekeeping models
@@ -29,6 +38,12 @@ class BaseModel(models.Model):
 
 class Project(BaseModel):
 	""" Project Model
+	Defines a project that has a number of tasks on which to work on.
+	
+	owner: project manager
+	slug: on_save via title
+
+	url: /api/projects/<slug>
 	"""
 
 	class Meta:
@@ -45,16 +60,19 @@ class Project(BaseModel):
         related_name="owned_projects",
         on_delete=models.CASCADE,
     )
+
 	title = models.CharField(
         _("Title"),
         help_text=_("Title of the Project"),
         max_length=255,
     )
+
 	slug = models.SlugField(
         _("Unique Slug Identifier"), 
 		max_length=255, 
 		allow_unicode=True, unique=True
     )
+
 	description = models.TextField(
         _("Description"),
         help_text=_("Description of the Project"),
@@ -71,15 +89,17 @@ class Project(BaseModel):
 		super(Project, self).save(*args, **kwargs)
 
 
-TASK_STATE_CHOICE = (
-	("planned",_("Task is planned")),
-	("started",_("Task is started")),
-	("hold",_("Task is on hold")),
-	("finished",_("Task is finished")),
-)
 
 class Task(BaseModel):
 	""" Task Model
+	A task of a project. Has task assignments <m2m> User that can log time on.
+		
+	project: parent project
+	slug: on_save via title
+	status: task lifecycle. started allows logging
+
+
+	url: /api/projects/<project_slug>/tasks/<task_slug>
 	"""
 
 	class Meta:
@@ -119,7 +139,7 @@ class Task(BaseModel):
         help_text=_("State of the task"),
         max_length=100,
         choices=TASK_STATE_CHOICE,
-        default="planned",
+        default="started",
     )
 
 	def __str__(self):
@@ -127,18 +147,26 @@ class Task(BaseModel):
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
-			self.slug = slugify(self.project.title + "-" + self.title)
+			self.slug = slugify(self.title)
 		super(Task, self).save(*args, **kwargs)
 
 
-class Assignment(BaseModel):
+class TaskAssignment(BaseModel):
 	""" Assignment Model
-	A User is assigned to a task of a project and can log work under the projects
+	A User is assigned to a task of a project and can log work time.
+		
+	task: parent task
+	user: assigned to work on task
+	allowed: logging allowed switch
+	max_workload: maximum workload allowed for the assignment
+
+
+	url: /api/projects/<project_slug>/tasks/<task_slug>/assignment/<uuid>
 	"""
 
 	class Meta:
-		verbose_name = _("Assignment")
-		verbose_name_plural = _("Assignments")
+		verbose_name = _("Task Assignment")
+		verbose_name_plural = _("Task Assignments")
 		ordering = ("task", "user")
 		unique_together = ("user", "task")
 	
@@ -156,12 +184,6 @@ class Assignment(BaseModel):
         on_delete=models.CASCADE,
     )
 
-	slug = models.SlugField(
-        _("Unique Slug Identifier"), 
-		max_length=255, 
-		allow_unicode=True, unique=True
-    )
-
 	allowed = models.BooleanField(
 		_("Allowed"),
 		help_text = _("Logging Work is allowed"), 
@@ -174,50 +196,84 @@ class Assignment(BaseModel):
 		default=0
 	)
 
+	current_workload = models.DurationField(
+		_("Current Workload"),
+		help_text = _('Work currently logged on this assignment'), 
+		default=0
+	)
+
+	def can_start_log_time(self):
+		"""Checks if all conditions are met to start logging time.
+		- Task is started
+		- Assignment is allowed
+		- current workload < max workload
+		"""
+		pass
+
+	def start_log_time(self):
+		"""Starts a new worklog:
+		Creates a new worklog and set start to now
+		"""
+		pass
+
+	def end_log_time(self):
+		"""Ends a worklog"""
+		pass
+
 	def __str__(self):
 		return _("%s working on \"%s\"") % (self.user, self.task)
 
 	def save(self, *args, **kwargs):
-		if not self.slug:
-			self.slug = slugify(self.user.username + "-" + self.task.title)
-		super(Assignment, self).save(*args, **kwargs)
+		super(TaskAssignment, self).save(*args, **kwargs)
 
 
 class Worklog(BaseModel):
-	""" Work log Model
+	""" Work Logging Model
 	A User logs work for an assignment. The work was start
+
+	assignment: associated to an assignment
+	start: work start datetime
+	stop: work end datetime
+	time: duration of the work / manual time
+
+	notes: worker notes or work references
+
+	url: /api/projects/<project_slug>/tasks/<task_slug>/assignment/<uuid>/log/<user>/<uuid>
 	"""
 
 	class Meta:
 		verbose_name = _("Worklog")
 		verbose_name_plural = _("Worklog")
 		ordering = ("start", "stop", "time")
-		# TODO: Disallow logging for same assignment at the same timeframe
+		# TODO: Disallow logging for same assignment at the same timeframe...
 		unique_together = ("assignment", "created_at") 
 
 	assignment = models.ForeignKey(
-        Assignment,
+        TaskAssignment,
         help_text=_("Worklog for assignments"),
         related_name="worklogs",
         on_delete=models.CASCADE,
     )
 
-	slug = models.SlugField(
-        _("Unique Slug Identifier"), 
-		max_length=255, 
-		allow_unicode=True, unique=True
-    )
+	completed = models.BooleanField(
+		_("Completed"),
+		help_text = _("The worklog instance is completed."), 
+		default=False
+	)
 
 	start = models.DateTimeField(
-		_('Started at'), help_text=_("Datetime when the work was started"), null=True, blank=True
+		_('Started at'), help_text=_("Datetime when the work was started"), 
+		null=True, blank=True
 	)
 
 	stop = models.DateTimeField(
-		_('Ended on'), help_text=_("Datetime when the work was stopped"), null=True, blank=True
+		_('Ended on'), help_text=_("Datetime when the work was stopped"), 
+		null=True, blank=True
 	)
 
 	time = models.DurationField(
-		_('Manual Time'), help_text=_("Log manual time"), null=True, blank=True
+		_('Manual Time'), help_text=_("Log manual time"), 
+		null=True, blank=True
 	)
 
 	notes = models.TextField(
@@ -231,11 +287,17 @@ class Worklog(BaseModel):
 	def workload(self):
 		return self.time
 
+	@property
+	def manual_time(self):
+		if self.time and not self.start or not self.stop:
+			return True
+		return False
+
 	def __str__(self):
-		return _("%s (Workload: %s)") % (self.assignment, self.time)
+		return _("%s (%s)") % (self.assignment, self.time)
 
 	def save(self, *args, **kwargs):
-		if not self.slug:
-			self.slug = slugify(self.assignment.task.title + "-" + 
-			self.assignment.user.username)
+		if self.completed == True and self.time == None:
+			# Calculate time by start and stop if no manual time was given.
+			self.time = self.stop - self.start
 		super(Worklog, self).save(*args, **kwargs)

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from timekeeping.models import Project, Task, Assignment, Worklog
+from timekeeping.models import Project, Task, TaskAssignment, Worklog
 
 class TaskInline(admin.TabularInline):
     model = Task
@@ -56,8 +56,8 @@ class ProjectAdmin(admin.ModelAdmin):
         )
 	)
 
-class AssignmentInline(admin.TabularInline):
-	model = Assignment
+class TaskAssignmentInline(admin.TabularInline):
+	model = TaskAssignment
 	fk_name = "task"
 	show_change_link = True
 	autocomplete_fields = ["user",]
@@ -88,7 +88,7 @@ class TaskAdmin(admin.ModelAdmin):
 		"status",
 	)
 	inlines = [
-		AssignmentInline,
+		TaskAssignmentInline,
 	]
 	prepopulated_fields = {"slug": ("title",)}
 	fieldsets = (
@@ -122,9 +122,9 @@ class WorklogInline(admin.TabularInline):
     fields = ("start", "stop", "time", "notes")
 
 
-@admin.register(Assignment)
-class AssignmentAdmin(admin.ModelAdmin):
-	""" Admin for Assignments
+@admin.register(TaskAssignment)
+class TaskAssignmentAdmin(admin.ModelAdmin):
+	""" Admin for Task Assignments
 	"""
 	save_on_top = True
 	list_display = (
