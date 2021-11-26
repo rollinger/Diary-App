@@ -80,14 +80,15 @@ class TaskAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 		lookup_field="username"
 	)
 	allowed = serializers.BooleanField(
-		default=True
+		initial=True
 	)
 	max_workload = serializers.DurationField(
-		default = datetime.timedelta(0)
+		initial = datetime.timedelta(0)
 	)
 	class Meta:
 		model = TaskAssignment
-		fields = ["user", "task", "max_workload", "current_workload", "allowed", "current_log", "archived_log"]
+		fields = ["url", "user", "task", "max_workload", "current_workload", "allowed", "current_log", "archived_log"]
+		read_only_fields = ('current_workload', 'current_log', "archived_log")
 		extra_kwargs = {
 			"url": {"view_name": "api:taskassignment-detail", "lookup_field": "id"}
 		}

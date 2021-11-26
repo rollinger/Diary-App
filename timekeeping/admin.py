@@ -64,7 +64,7 @@ class TaskAssignmentInline(admin.TabularInline):
 	show_change_link = True
 	autocomplete_fields = ["user",]
 	extra = 1
-	fields = ("user", "allowed", "max_workload",)
+	fields = ("user", "allowed", "max_workload", "current_workload",)
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -129,10 +129,11 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 		"allowed",
 		"id",
 	)
-	list_display_links = ("user",)
+	list_display_links = ("task", "user",)
 	readonly_fields = [
 		"id",
 		"current_workload",
+		"archived_log",
 		"created_at",
 		"updated_at",
 	]
@@ -150,7 +151,7 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 				"fields": (
 					("task", "user"),
 					("max_workload", "current_workload", "allowed"),
-					"log",
+					("current_log", "archived_log"),
 				)
 			},
 		),

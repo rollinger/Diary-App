@@ -1,7 +1,9 @@
 import datetime
-from enum import unique
+# from enum import unique
 import uuid
-
+import json
+import pytz
+from dateutil import parser
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -25,6 +27,20 @@ LOG_DEFAULT_JSON = {
     "time": None,
     "notes": "",
 	"completed": False}
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code
+	Use like json.dumps(datetime.now(), default=json_serial)
+	"""
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
+def json_to_datetime(datetime_string):
+    return pytz.timezone("Europe/Berlin").localize(parser.parse(datetime_string))
+
 
 def get_current_log_default_json():
 	return LOG_DEFAULT_JSON
@@ -205,14 +221,14 @@ class TaskAssignment(BaseModel):
 
 	max_workload = models.DurationField(
 		_("Maximum Workload"),
-		help_text = _('Max workload in time. If left zero no workload cap.'), 
-		default=0
+		help_text = _('Max workload in time. If left zero no workload cap. Format: hh:mm:ss'), 
+		default=datetime.timedelta()
 	)
 
 	current_workload = models.DurationField(
 		_("Current Workload"),
-		help_text = _('Work currently logged on this assignment'), 
-		null=True, blank=True
+		help_text = _('Work currently logged on this assignment. Format: hh:mm:ss'), 
+		default=datetime.timedelta()
 	)
 
 	current_log = models.JSONField(
@@ -225,7 +241,10 @@ class TaskAssignment(BaseModel):
 		default=get_archive_log_list_json
 	)
 
-	def can_start_log_time(self, user):
+	def __str__(self):
+		return _("%s working on \"%s\"") % (self.user, self.task)
+
+	def can_log_time(self, user):
 		"""Checks if all conditions are met to start logging time.
 		- Task is started
 		- Assignment is allowed
@@ -243,29 +262,51 @@ class TaskAssignment(BaseModel):
 		Creates a new worklog and set start to now, 
 		appends notes if passed.
 		"""
-		if self.can_start_log_time(user):
+		if self.can_log_time(user):
 			self.current_log = get_current_log_default_json()
-			self.current_log['start'] = datetime.datetime.now()
+			self.current_log['start'] = json_serial(datetime.datetime.now())
 			if notes:
 				self.current_log['notes'] = notes
 			self.save()
 			return True
 		return False
 
-	def end_log_time(self):
+	def stop_log_time(self, user, notes=None):
 		""" Stops a worklog: 
 		Logs stop time, calcs the duration and sets to completed
 		"""
-		if self.current_log['completed'] == False:
-			self.current_log['stop'] = datetime.datetime.now()
-			self.current_log['time'] = self.current_log['stop'] - self.current_log['start']
+		if self.can_log_time(user) and self.current_log['completed'] == False:
+			self.current_log['stop'] = json_serial(datetime.datetime.now())
+			time = json_to_datetime(self.current_log['stop']) - json_to_datetime(self.current_log['start'])
+			self.current_log['time'] = time.total_seconds()
+			if notes:
+				self.current_log['notes'] += "\n" + notes
 			self.current_log['completed'] = True
 			self.archived_log.append( self.current_log )
+			self.save()
 			return True
 		return False
 
-	def __str__(self):
-		return _("%s working on \"%s\"") % (self.user, self.task)
-
 	def save(self, *args, **kwargs):
+		""" On save calculates the total seconds logged as the current workload."""
+		seconds = 0
+		for log in self.archived_log:
+			seconds += log["time"]
+		self.current_workload = datetime.timedelta(seconds=seconds)
 		super(TaskAssignment, self).save(*args, **kwargs)
+
+"""
+Print("Starting Log:")
+phil = User.objects.get(username="philipp")
+ta = TaskAssignment.objects.all().first()
+ta.can_log_time(phil)
+ta.start_log_time(phil,notes="Start Test")
+print(ta.current_log)
+
+Print("Stopping Log:")
+phil = User.objects.get(username="philipp")
+ta = TaskAssignment.objects.all().first()
+ta.can_log_time(phil)
+ta.stop_log_time(phil,notes="Stop Test")
+print(ta.current_log)
+"""
