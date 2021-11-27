@@ -69,20 +69,24 @@ class TaskAssignmentViewSet(ModelViewSet):
     lookup_field = "id"
     permission_classes = [permissions.IsAdminUser]
 
-    @action(methods=['put'], detail=True, permission_classes=[permissions.IsAuthenticated])
+    @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def start_worklog(self, request, pk=None):
         """ Authenticated Users can START a worklog on their assignment 
-        The timestamp is set on the backend. Optional leave a note.
+        The timestamp is set on the backend. Optional pass a note (TODO).
         """
         assignment = self.get_object()
         user = self.request.user
-        #assignment.start_log_time(user)
+        assignment.can_log_time(user)
+        assignment.start_log_time(user, notes=None)
+        return Response(TaskAssignmentSerializer(assignment).data)
 
-        return Response(serializer.data)
-
-    @action(methods=['put'], detail=True, permission_classes=[permissions.IsAuthenticated])
+    @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def stop_worklog(self, request, pk=None):
         """ Authenticated Users can STOP a worklog on their assignment 
         The timestamp is set on the backend. Optional leave a note.
         """
-        pass
+        assignment = self.get_object()
+        user = self.request.user
+        assignment.can_log_time(user)
+        assignment.stop_log_time(user, notes=None)
+        return Response(TaskAssignmentSerializer(assignment).data)

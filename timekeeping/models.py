@@ -259,8 +259,14 @@ class TaskAssignment(BaseModel):
 
 	def start_log_time(self, user, notes=None):
 		""" Starts a new worklog:
-		Creates a new worklog and set start to now, 
-		appends notes if passed.
+		Creates a new worklog and set start to now, appends notes if passed.
+		
+		Print("Invoke START LOG:")
+		phil = User.objects.get(username="philipp")
+		ta = TaskAssignment.objects.all().first()
+		ta.can_log_time(phil)
+		ta.start_log_time(phil,notes="Start Test")
+		print(ta.current_log)
 		"""
 		if self.can_log_time(user):
 			self.current_log = get_current_log_default_json()
@@ -274,6 +280,13 @@ class TaskAssignment(BaseModel):
 	def stop_log_time(self, user, notes=None):
 		""" Stops a worklog: 
 		Logs stop time, calcs the duration and sets to completed
+		
+		Print("Invoke STOP LOG:")
+		phil = User.objects.get(username="philipp")
+		ta = TaskAssignment.objects.all().first()
+		ta.can_log_time(phil)
+		ta.stop_log_time(phil,notes="Stop Test")
+		print(ta.current_log)
 		"""
 		if self.can_log_time(user) and self.current_log['completed'] == False:
 			self.current_log['stop'] = json_serial(datetime.datetime.now())
@@ -294,19 +307,3 @@ class TaskAssignment(BaseModel):
 			seconds += log["time"]
 		self.current_workload = datetime.timedelta(seconds=seconds)
 		super(TaskAssignment, self).save(*args, **kwargs)
-
-"""
-Print("Starting Log:")
-phil = User.objects.get(username="philipp")
-ta = TaskAssignment.objects.all().first()
-ta.can_log_time(phil)
-ta.start_log_time(phil,notes="Start Test")
-print(ta.current_log)
-
-Print("Stopping Log:")
-phil = User.objects.get(username="philipp")
-ta = TaskAssignment.objects.all().first()
-ta.can_log_time(phil)
-ta.stop_log_time(phil,notes="Stop Test")
-print(ta.current_log)
-"""
