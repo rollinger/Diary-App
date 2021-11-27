@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -57,10 +58,6 @@ class TaskAssignmentViewSet(ModelViewSet):
     CRUD for for Staff User:
     /api/taskassignments/	    timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-list
     /api/taskassignments/<id>/	timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-detail
-
-    START/STOP for workers
-    /api/taskassignments/<id>/start_worklog/	timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-start-worklog
-    /api/taskassignments/<id>/stop_worklog/	    timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-stop-worklog
     
     ID via UUID <id>
     .<format>/	Suffix to specify response format.
@@ -69,6 +66,27 @@ class TaskAssignmentViewSet(ModelViewSet):
     queryset = TaskAssignment.objects.all()
     lookup_field = "id"
     permission_classes = [permissions.IsAdminUser]
+
+
+class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    """Reduced User Viewset for Task Assignments
+
+    Like TaskAssignmentViewSet without POST,PUT,DELETE
+
+    START/STOP for workers
+    /api/taskassignments/<id>/start_worklog/	timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-start-worklog
+    /api/taskassignments/<id>/stop_worklog/	    timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-stop-worklog
+    
+    ID via UUID <id>
+    .<format>/	Suffix to specify response format
+    """
+    serializer_class = TaskAssignmentSerializer
+    queryset = TaskAssignment.objects.all()
+    lookup_field = "id"
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        return self.queryset.filter(user=self.request.user)
 
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def start_worklog(self, request, pk=None):
@@ -92,4 +110,4 @@ class TaskAssignmentViewSet(ModelViewSet):
         user = self.request.user
         if assignment.stop_log_time(user, notes=None):
             return Response(TaskAssignmentSerializer(assignment).data)
-        return Response({'Can not start log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Can not end log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)

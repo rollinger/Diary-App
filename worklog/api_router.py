@@ -6,8 +6,7 @@ from timekeeping.api.views import (
 	ProjectViewSet, 
 	TaskViewSet, 
 	TaskAssignmentViewSet, 
-	# TaskAssignmentWorkerViewSet, 
-	# WorklogWorkerViewSet
+	UserTaskAssignmentViewSet
 )
 
 router = DefaultRouter()
@@ -16,9 +15,7 @@ router.register("users", UserViewSet)
 router.register("projects", ProjectViewSet)
 router.register("tasks", TaskViewSet)
 router.register("taskassignments", TaskAssignmentViewSet)
-
-# router.register("user_assignments", TaskAssignmentWorkerViewSet)
-# router.register("user_worklogs", WorklogWorkerViewSet)
+router.register("user_worklogs", UserTaskAssignmentViewSet)
 
 app_name = "api"
 urlpatterns = router.urls
