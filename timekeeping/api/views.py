@@ -3,6 +3,7 @@ from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 
 from timekeeping.models import Project, Task, TaskAssignment
 
@@ -72,21 +73,23 @@ class TaskAssignmentViewSet(ModelViewSet):
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def start_worklog(self, request, pk=None):
         """ Authenticated Users can START a worklog on their assignment 
-        The timestamp is set on the backend. Optional pass a note (TODO).
+        The timestamp is set on the backend. Optional pass a note (TODO: Not implemented yet).
+        Permissions (can_log_time) is checked on the model.
         """
         assignment = self.get_object()
         user = self.request.user
-        assignment.can_log_time(user)
-        assignment.start_log_time(user, notes=None)
-        return Response(TaskAssignmentSerializer(assignment).data)
+        if assignment.start_log_time(user, notes=None):
+            return Response(TaskAssignmentSerializer(assignment).data)
+        return Response({'Can not start log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
     def stop_worklog(self, request, pk=None):
         """ Authenticated Users can STOP a worklog on their assignment 
-        The timestamp is set on the backend. Optional leave a note.
+        The timestamp is set on the backend. Optional leave a note (TODO: Not implemented yet).
+        Permissions (can_log_time) is checked on the model.
         """
         assignment = self.get_object()
         user = self.request.user
-        assignment.can_log_time(user)
-        assignment.stop_log_time(user, notes=None)
-        return Response(TaskAssignmentSerializer(assignment).data)
+        if assignment.stop_log_time(user, notes=None):
+            return Response(TaskAssignmentSerializer(assignment).data)
+        return Response({'Can not start log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)
