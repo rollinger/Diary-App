@@ -97,5 +97,5 @@ def test_current_worklog_workload_exceeded(user: User):
     manager, worker, project, tasks, assignments = make_standard_task_entries()
     assert(assignments[0].can_log_time(worker) == True)
     for state in blocking_states:
-        assignments[0].task.status = "state"
+        assignments[0].task.status = state
         assert(assignments[0].can_log_time(worker) == False)
