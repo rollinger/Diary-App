@@ -14,3 +14,12 @@ Worklog App
 API ROOT under /api/
 
 ADMIN under /admin/
+
+Load fixtures:
+python manage.py loaddata worklog/fixtures/dummy_data.json
+
+
+Prefab User:
+jimmy::JrS5S4hYrTiKjtx (normal user)
+cian::jrS5S4hYrTiKjtx (admin)
+georg::jrS5S4hYrTiKjtX (admin)

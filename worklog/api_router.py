@@ -15,7 +15,7 @@ router.register("users", UserViewSet)
 router.register("projects", ProjectViewSet)
 router.register("tasks", TaskViewSet)
 router.register("taskassignments", TaskAssignmentViewSet)
-router.register("user_worklogs", UserTaskAssignmentViewSet)
+router.register("my-assignments", UserTaskAssignmentViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

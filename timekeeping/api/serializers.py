@@ -86,6 +86,22 @@ class TaskAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 	max_workload = serializers.DurationField(
 		initial = datetime.timedelta(0)
 	)
+
+	class Meta:
+		model = TaskAssignment
+		fields = ["url", "user", "task", "max_workload", "current_workload", 
+			"allowed", "current_log", "archived_log"]
+		read_only_fields = ('current_workload', 'current_log', "archived_log")
+		extra_kwargs = {
+			"url": {"view_name": "api:taskassignment-detail", "lookup_field": "id"},
+		}
+
+
+class UserTaskAssignmentSerializer(TaskAssignmentSerializer):
+	""" Inherited and extended by generic TaskAssignmentSerializer
+	TODO: The stop/start endpoints should be absolute urls and 
+	return to the detail view of the task.
+	"""
 	# start_url = serializers.HyperlinkedRelatedField(
 	# 	many=False,
 	# 	read_only=True,

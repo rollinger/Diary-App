@@ -12,7 +12,7 @@ from .serializers import (
     ProjectSerializer, 
     TaskSerializer, 
     TaskAssignmentSerializer, 
-    #NoteSerializer,
+    UserTaskAssignmentSerializer
 )
 
 User = get_user_model()
@@ -82,7 +82,7 @@ class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewS
     ID via UUID <id>
     .<format>/	Suffix to specify response format
     """
-    serializer_class = TaskAssignmentSerializer
+    serializer_class = UserTaskAssignmentSerializer
     queryset = TaskAssignment.objects.all()
     lookup_field = "id"
     permission_classes = [permissions.IsAuthenticated]
