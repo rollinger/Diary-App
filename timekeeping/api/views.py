@@ -71,11 +71,13 @@ class TaskAssignmentViewSet(ModelViewSet):
 class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     """Reduced User Viewset for Task Assignments
 
-    Like TaskAssignmentViewSet without POST,PUT,DELETE
+    Like TaskAssignmentViewSet without POST,PUT,DELETE and only user-owned Task assignements are accessed.
 
     START/STOP for workers
-    /api/taskassignments/<id>/start_worklog/	timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-start-worklog
-    /api/taskassignments/<id>/stop_worklog/	    timekeeping.api.views.TaskAssignmentViewSet	api:taskassignment-stop-worklog
+    /api/taskassignments/<id>/start_worklog/	timekeeping.api.views.TaskAssignmentViewSet	
+                                                api:taskassignment-start-worklog
+    /api/taskassignments/<id>/stop_worklog/	    timekeeping.api.views.TaskAssignmentViewSet	
+                                                api:taskassignment-stop-worklog
     
     ID via UUID <id>
     .<format>/	Suffix to specify response format
@@ -89,7 +91,7 @@ class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewS
         return self.queryset.filter(user=self.request.user)
 
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
-    def start_worklog(self, request, pk=None):
+    def start_worklog(self, request, id=None):
         """ Authenticated Users can START a worklog on their assignment 
         The timestamp is set on the backend. Optional pass a note (TODO: Not implemented yet).
         Permissions (can_log_time) is checked on the model.
@@ -97,11 +99,11 @@ class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewS
         assignment = self.get_object()
         user = self.request.user
         if assignment.start_log_time(user, notes=None):
-            return Response(TaskAssignmentSerializer(assignment).data)
+            return Response({'Logging Started': 'Working on task assignment started'}, status=status.HTTP_200_OK)
         return Response({'Can not start log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated])
-    def stop_worklog(self, request, pk=None):
+    def stop_worklog(self, request, id=None):
         """ Authenticated Users can STOP a worklog on their assignment 
         The timestamp is set on the backend. Optional leave a note (TODO: Not implemented yet).
         Permissions (can_log_time) is checked on the model.
@@ -109,5 +111,6 @@ class UserTaskAssignmentViewSet(RetrieveModelMixin, ListModelMixin, GenericViewS
         assignment = self.get_object()
         user = self.request.user
         if assignment.stop_log_time(user, notes=None):
-            return Response(TaskAssignmentSerializer(assignment).data)
+            #return Response(TaskAssignmentSerializer(assignment).data)
+            return Response({'Logging Stopped': 'Working on task assignment stopped'}, status=status.HTTP_200_OK)
         return Response({'Can not end log': 'Assignment not open for logging.'}, status=status.HTTP_404_NOT_FOUND)

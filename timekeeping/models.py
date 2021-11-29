@@ -244,6 +244,19 @@ class TaskAssignment(BaseModel):
 	def __str__(self):
 		return _("%s working on \"%s\"") % (self.user, self.task)
 
+	def recalculate_current_workload(self, save=True):
+		""" Helper method to ensure current_workload is synced
+		Save is default & optional.
+		Returns current_workload.
+		"""
+		seconds = 0
+		for log in self.archived_log:
+			seconds += log["time"]
+		self.current_workload = datetime.timedelta(seconds=seconds)
+		if save:
+			self.save()
+		return self.current_workload
+
 	def can_log_time(self, user):
 		"""Checks if all conditions are met to start logging time.
 		- Task is started
@@ -296,14 +309,15 @@ class TaskAssignment(BaseModel):
 				self.current_log['notes'] += "\n" + notes
 			self.current_log['completed'] = True
 			self.archived_log.append( self.current_log )
+			self.current_workload += datetime.timedelta(seconds=self.current_log['time'])
 			self.save()
 			return True
 		return False
 
 	def save(self, *args, **kwargs):
-		""" On save calculates the total seconds logged as the current workload."""
-		seconds = 0
-		for log in self.archived_log:
-			seconds += log["time"]
-		self.current_workload = datetime.timedelta(seconds=seconds)
+		# """ On save calculates the total seconds logged as the current workload."""
+		# seconds = 0
+		# for log in self.archived_log: #TODO: Optimizable by adding the time in the stop_log_time method.
+		# 	seconds += log["time"]
+		# self.current_workload = datetime.timedelta(seconds=seconds)
 		super(TaskAssignment, self).save(*args, **kwargs)
