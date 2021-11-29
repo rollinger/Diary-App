@@ -1,4 +1,5 @@
 import datetime
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
@@ -85,10 +86,27 @@ class TaskAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 	max_workload = serializers.DurationField(
 		initial = datetime.timedelta(0)
 	)
+	# start_url = serializers.HyperlinkedRelatedField(
+	# 	many=False,
+	# 	read_only=True,
+	# 	view_name='api:taskassignment-start-worklog'
+	# )
+	start_url = serializers.SerializerMethodField()
+	stop_url = serializers.SerializerMethodField()
+
 	class Meta:
 		model = TaskAssignment
-		fields = ["url", "user", "task", "max_workload", "current_workload", "allowed", "current_log", "archived_log"]
+		fields = ["url", "start_url", "stop_url", "user", "task", "max_workload", "current_workload", 
+			"allowed", "current_log", "archived_log"]
 		read_only_fields = ('current_workload', 'current_log', "archived_log")
 		extra_kwargs = {
-			"url": {"view_name": "api:taskassignment-detail", "lookup_field": "id"}
+			"url": {"view_name": "api:taskassignment-detail", "lookup_field": "id"},
+			#"start_url": {"view_name": "api:taskassignment-start-worklog", "lookup_field": "id"},
+			#"stop": {"view_name": "api:taskassignment-stop-worklog", "lookup_field": "id"}
 		}
+
+	def get_start_url(self, obj):
+		return reverse("api:taskassignment-start-worklog", kwargs={"id": obj.id})
+	
+	def get_stop_url(self, obj):
+		return reverse("api:taskassignment-stop-worklog", kwargs={"id": obj.id})
