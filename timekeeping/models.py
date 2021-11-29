@@ -144,7 +144,7 @@ class Task(BaseModel):
         on_delete=models.CASCADE,
     )
 
-	title = models.CharField(
+	title  = models.CharField(
         _("Title"),
         help_text=_("Title of the Task"),
         max_length=255,
