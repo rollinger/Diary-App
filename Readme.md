@@ -13,10 +13,10 @@ DIARY APP
 
 API ROOT under /api/
 
-ADMIN under /admin/
+ADMIN under /
 
 Load fixtures:
-$> python manage.py loaddata diary/fixtures/dummy_data.json
+$> python manage.py loaddata users/fixtures/group_permissions.json
 
 Run tests:
 $> pytest
