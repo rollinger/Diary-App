@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
@@ -34,8 +35,11 @@ class Emotion(BaseModel):
 	name  = models.CharField(
         _("Name"),
         help_text=_("Name of the Emotion"),
-        max_length=255,
+        max_length=255, unique=True
     )
+
+	def __str__(self):
+		return _("%s") % (self.name)
 
 
 class EntryManager(models.Manager):
@@ -61,8 +65,8 @@ class Entry(BaseModel):
 	class Meta:
 		verbose_name = _("Entry")
 		verbose_name_plural = _("Entries")
-		ordering = ("-date",)
-		unique_together = ("user", "date")
+		ordering = ("-occasion",)
+		unique_together = ("user", "occasion")
 
 	user = models.ForeignKey(
         User,
@@ -71,10 +75,9 @@ class Entry(BaseModel):
         on_delete=models.CASCADE,
     )
 
-	date = models.DateField(
-		_("Date"), 
+	occasion = models.DateField(
+		_("Occasion"), 
 		help_text=_("Date the entry was made"),
-		auto_now_add=True
 	)
 
 	text = models.TextField(
@@ -92,7 +95,9 @@ class Entry(BaseModel):
 	objects = EntryManager
 
 	def __str__(self):
-		return _("%s Entry from %s") % (self.user, self.date)
+		return _("%s Entry from %s") % (self.user, self.occasion)
 
 	def save(self, *args, **kwargs):
+		if not self.occasion:
+			self.occasion = datetime.date.now()
 		super(Entry, self).save(*args, **kwargs)

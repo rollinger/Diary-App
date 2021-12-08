@@ -51,22 +51,23 @@ class EntryAdmin(admin.ModelAdmin):
 	list_display = (
 		"id",
 		"user",
-		"date",
+		"occasion",
 	)
-	list_display_links = ("date",)
+	list_display_links = ("occasion",)
 	readonly_fields = [
         "id",
-		"emotions",
+		#"emotions",
         "created_at",
         "updated_at",
     ]
 	search_fields = ["user", "text"]
+	autocomplete_fields = ["user", "emotions"]
 	fieldsets = (
         (
             None,
             {
                 "fields": (
-                    ("user", "date"),
+                    ("user", "occasion"),
 					"text",
 					"emotions"
                 )
