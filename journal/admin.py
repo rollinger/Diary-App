@@ -88,6 +88,6 @@ class EntryAdmin(admin.ModelAdmin):
 	)
 
 	def _get_emotion_list(self, obj):
-		return "; ".join([e.name for e in obj.emotions.all()])
+		return ", ".join([e.name for e in obj.emotions.all()])
 	_get_emotion_list.allow_tags = True
 	_get_emotion_list.short_description = _('List of Emotions')

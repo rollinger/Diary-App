@@ -20,7 +20,7 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'diary App'
+project = 'Diary App'
 copyright = '2021, Philipp Rollinger'
 author = 'Philipp Rollinger'
 

@@ -66,7 +66,7 @@ class Entry(BaseModel):
 		verbose_name = _("Entry")
 		verbose_name_plural = _("Entries")
 		ordering = ("-occasion",)
-		unique_together = ("user", "occasion")
+		#unique_together = ("user",)
 
 	user = models.ForeignKey(
         User,
