@@ -75,6 +75,7 @@ class EntryAdmin(admin.ModelAdmin):
 	list_filter = ("emotions",)
 	readonly_fields = [
         "id",
+		"user",
         "created_at",
         "updated_at",
     ]
@@ -86,7 +87,7 @@ class EntryAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    ("user", "occasion"),
+                    ("occasion"),
 					"text",
 					"emotions"
                 )
@@ -97,12 +98,17 @@ class EntryAdmin(admin.ModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
-                    ("id"),
+                    ("id","user",),
                     ("created_at", "updated_at"),
                 ),
             },
         )
 	)
+
+	def save_model(self, request, obj, form, change):
+		""" Adds the request user as the user, always."""
+		obj.user = request.user
+		obj.save()
 
 	def get_queryset(self, request):
 		""" Shows all objects to superuser. To all others only
@@ -113,13 +119,6 @@ class EntryAdmin(admin.ModelAdmin):
 		else:
 			queryset = Entry.objects.my_entries(user=request.user)
 		return queryset
-
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-		# TODO/FIX: does not filter yet
-		# Thomas: get_read_only_field overwrite
-		if db_field.name == "user":
-			kwargs["queryset"] = User.objects.filter(pk=request.user.pk)
-		return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 	def _get_emotion_list(self, obj):
 		"""Aggregate emotions for listing in display"""

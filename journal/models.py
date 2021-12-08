@@ -67,13 +67,12 @@ class Entry(BaseModel):
 		verbose_name = _("Entry")
 		verbose_name_plural = _("Entries")
 		ordering = ("-occasion",)
-		#unique_together = ("user",)
 
 	user = models.ForeignKey(
         User,
         help_text=_("Author of the entry"),
         related_name="entries",
-        on_delete=models.CASCADE,
+        blank=True, on_delete=models.CASCADE,
     )
 
 	occasion = models.DateField(
