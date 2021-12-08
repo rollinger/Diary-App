@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from factory import Faker
 from factory.django import DjangoModelFactory
 from users.tests.factories import UserFactory
-from timekeeping.models import Project, Task, TaskAssignment
+from diary.models import Project, Task, TaskAssignment
 
 pytestmark = pytest.mark.django_db
 

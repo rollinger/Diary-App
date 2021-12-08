@@ -13,9 +13,9 @@ urlpatterns = [
     #
     # API Base Url
     # See api_router for the routing of the viewsets
-    #path("api/", include("diary.api_router")),
+    path("api/", include("diary.api_router")),
     # DRF Auth Token
     # POST username and password to this endpoint to get the authentication token.
     # The token is used for subsequent requests from the client.
-    #path("api-auth-token/", obtain_auth_token),
+    path("api-auth-token/", obtain_auth_token),
 ]

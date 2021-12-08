@@ -278,3 +278,4 @@ memo/media/
 !.envs/.local/
 
 *.sqlite3
+*_old.py

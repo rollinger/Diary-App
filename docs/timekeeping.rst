@@ -1,9 +1,9 @@
- .. _timekeeping:
+ .. _diary:
 
-Timekeeping
+diary
 ======================================================================
 
-The Timekeeping App handles Projects, Tasks, TaskAssignments and Worklogs
+The diary App handles Projects, Tasks, TaskAssignments and diarys
 for tracking work time on a project's task.
 
 WORKERS: normal authenticated users that can:
@@ -15,6 +15,6 @@ Complete CRUD Interface via API Viewsets.
 
 For a list of Endpoints see the Class Autodocs.
 
-.. automodule:: timekeeping.models
+.. automodule:: diary.models
    :members:
    :noindex:

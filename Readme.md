@@ -5,7 +5,7 @@ DIARY APP
 - $> python3 -m venv venv
 - $> activate venv
 - $> pip install -r requirements.txt
-- $> cd worklog
+- $> cd diary
 - $> python manage.py migrate
 - $> python manage.py createsuperuser
 - $> python manage.py show_urls		# Endpoints Available

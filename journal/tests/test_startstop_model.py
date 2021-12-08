@@ -5,8 +5,8 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from users.tests.factories import UserFactory
 from factory import Faker
-from timekeeping.models import Project, Task, TaskAssignment
-#from timekeeping.tests.factories import ProjectFactory, TaskFactory, TaskAssignmentFactory
+from diary.models import Project, Task, TaskAssignment
+#from diary.tests.factories import ProjectFactory, TaskFactory, TaskAssignmentFactory
 
 User = get_user_model()
 
@@ -52,7 +52,7 @@ def test_standard_task_entries():
     
 
 @pytest.mark.django_db
-def test_worklog_assigned(user: User):
+def test_diary_assigned(user: User):
     # User is assigned to task (True)
     wait_period = 0.05
     manager, worker, project, tasks, assignments = make_standard_task_entries()
@@ -68,14 +68,14 @@ def test_worklog_assigned(user: User):
 
 
 @pytest.mark.django_db
-def test_worklog_not_assigned(user: User):
+def test_diary_not_assigned(user: User):
     # User is not assigned to task (False)
     manager, worker, project, tasks, assignments = make_standard_task_entries()
     assert(assignments[1].can_log_time(worker) == False)
     assert(assignments[1].can_log_time(manager) == True)
 
 @pytest.mark.django_db
-def test_worklog_not_assigned(user: User):
+def test_diary_not_assigned(user: User):
     # Assignment is disallowed temporarily (False)
     manager, worker, project, tasks, assignments = make_standard_task_entries()
     assert(assignments[0].can_log_time(worker) == True)
@@ -83,7 +83,7 @@ def test_worklog_not_assigned(user: User):
     assert(assignments[0].can_log_time(worker) == False)
 
 @pytest.mark.django_db
-def test_current_worklog_workload_exceeded(user: User):
+def test_current_diary_workload_exceeded(user: User):
     # Workload is exceeded (False)
     manager, worker, project, tasks, assignments = make_standard_task_entries()
     assert(assignments[0].can_log_time(worker) == True)
@@ -91,7 +91,7 @@ def test_current_worklog_workload_exceeded(user: User):
     assert(assignments[0].can_log_time(worker) == False)
 
 @pytest.mark.django_db
-def test_current_worklog_workload_exceeded(user: User):
+def test_current_diary_workload_exceeded(user: User):
     # Task is not started (False)
     blocking_states = ["planned","hold","finished"]
     manager, worker, project, tasks, assignments = make_standard_task_entries()

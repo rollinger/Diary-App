@@ -14,13 +14,13 @@ import os
 import sys
 import django
 sys.path.insert(0, os.path.abspath('..'))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'worklog.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'diary.settings')
 
 django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'Worklog App'
+project = 'diary App'
 copyright = '2021, Philipp Rollinger'
 author = 'Philipp Rollinger'
 
