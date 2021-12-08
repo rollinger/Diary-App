@@ -5,8 +5,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from users.tests.factories import UserFactory
 from factory import Faker
-from diary.models import Project, Task, TaskAssignment
-#from diary.tests.factories import ProjectFactory, TaskFactory, TaskAssignmentFactory
+from journal.diary.models import Entry, Emotion
 
 User = get_user_model()
 
