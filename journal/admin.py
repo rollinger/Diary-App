@@ -100,7 +100,7 @@ class EntryAdmin(admin.ModelAdmin):
 		return queryset
 
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-		# TODO/FIX: does not filter
+		# TODO/FIX: does not filter yet
 		if db_field.name == "user":
 			kwargs["queryset"] = User.objects.filter(pk=request.user.pk)
 		return super().formfield_for_foreignkey(db_field, request, **kwargs)
