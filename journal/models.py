@@ -48,9 +48,10 @@ class EntryManager(models.Manager):
 	my_entries(user): returns a list of entries descendingly sorted
 	"""
 	
-	def my_entries(user):
-		# TODO!
-		pass
+	def my_entries(self, user):
+		""" Returns a list of entries descendingly sorted."""
+		return self.filter(user=user).order_by("-occasion")
+
 
 class Entry(BaseModel):
 	""" Entry Model
@@ -93,7 +94,7 @@ class Entry(BaseModel):
 		blank=True,
 	)
 
-	objects = EntryManager
+	objects = EntryManager()
 
 	def __str__(self):
 		return _("%s Entry from %s") % (self.user, self.occasion)

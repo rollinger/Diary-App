@@ -9,6 +9,23 @@ from journal.diary.models import Entry, Emotion
 
 User = get_user_model()
 
+@pytest.mark.django_db
+def test_create_journal_entry():
+    """ Make sure the entry get only saved if user and text is present.
+    Test that the date is added if left blank and is equal to today
+    """
+    pass
+
+@pytest.mark.django_db
+def test_my_entries_method():
+    """ Make sure the Entry.objects.my_entries() method returns only
+    the user entries and is sorted descendingly
+    """
+    pass
+
+
+
+
 def make_standard_task_entries():
     manager = UserFactory(username="manager")
     worker = UserFactory(username="worker")

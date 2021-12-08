@@ -18,8 +18,5 @@ ADMIN under /admin/
 Load fixtures:
 $> python manage.py loaddata diary/fixtures/dummy_data.json
 
-Prefab User:
-jimmy::JrS5S4hYrTiKjtx (normal user)
-
 Run tests:
 $> pytest

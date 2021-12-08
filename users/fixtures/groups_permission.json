@@ -1,0 +1,17 @@
+[
+{
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Normal User",
+        "permissions": [
+            36,
+            37,
+            38,
+            39,
+            40,
+            32
+        ]
+    }
+}
+]

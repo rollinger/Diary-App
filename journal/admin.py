@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
 
 from journal.models import Emotion, Entry
 
+User = get_user_model()
 
 @admin.register(Emotion)
 class EmotionAdmin(admin.ModelAdmin):
@@ -87,7 +89,24 @@ class EntryAdmin(admin.ModelAdmin):
         )
 	)
 
+	def get_queryset(self, request):
+		""" Shows all objects to superuser. To all others only
+		their own entries
+		"""
+		if request.user.is_superuser:
+			queryset = super(EntryAdmin, self).get_queryset(request)
+		else:
+			queryset = Entry.objects.my_entries(user=request.user)
+		return queryset
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		# TODO/FIX: does not filter
+		if db_field.name == "user":
+			kwargs["queryset"] = User.objects.filter(pk=request.user.pk)
+		return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 	def _get_emotion_list(self, obj):
+		"""Aggregate emotions for listing in display"""
 		return ", ".join([e.name for e in obj.emotions.all()])
 	_get_emotion_list.allow_tags = True
 	_get_emotion_list.short_description = _('List of Emotions')
