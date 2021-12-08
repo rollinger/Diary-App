@@ -1,3 +1,5 @@
+from datetime import date
+from django import forms
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
@@ -45,6 +47,19 @@ class EmotionAdmin(admin.ModelAdmin):
 
 
 
+class EntryAdminForm(forms.ModelForm):
+	class Meta:
+		model = Entry
+		exclude = [
+			"created_at",
+        	"updated_at",
+		]
+
+	def __init__(self, *args, **kwargs):
+		super(EntryAdminForm, self).__init__(*args, **kwargs)
+		self.initial['occasion'] = date.today()
+
+
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
 	""" Admin for Diary Journal Entry
@@ -60,12 +75,12 @@ class EntryAdmin(admin.ModelAdmin):
 	list_filter = ("emotions",)
 	readonly_fields = [
         "id",
-		#"emotions",
         "created_at",
         "updated_at",
     ]
 	search_fields = ["user", "text"]
 	autocomplete_fields = ["user", "emotions"]
+	form = EntryAdminForm
 	fieldsets = (
         (
             None,
@@ -101,6 +116,7 @@ class EntryAdmin(admin.ModelAdmin):
 
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		# TODO/FIX: does not filter yet
+		# Thomas: get_read_only_field overwrite
 		if db_field.name == "user":
 			kwargs["queryset"] = User.objects.filter(pk=request.user.pk)
 		return super().formfield_for_foreignkey(db_field, request, **kwargs)

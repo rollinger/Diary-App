@@ -13,7 +13,6 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 	if created:
 		Token.objects.create(user=instance)
 
-
 # USER CREATION (post save)
 @receiver(post_save, sender=User)
 def user_created(sender, instance, created, **kwargs):
@@ -27,7 +26,7 @@ def user_created(sender, instance, created, **kwargs):
 
 # USER DELETION (post save)
 @receiver(pre_delete, sender=User)
-def user_before_delete(sender, instance, created, **kwargs):
+def user_before_delete(sender, instance, **kwargs):
 	# Cleanup Code 
 	# Currently Stub
     pass

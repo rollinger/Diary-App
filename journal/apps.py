@@ -7,7 +7,4 @@ class JournalConfig(AppConfig):
     verbose_name = _("Journal")
 
     def ready(self):
-        try:
-            import diary.journal.signals  # noqa F401
-        except ImportError:
-            pass
+        import journal.signals
