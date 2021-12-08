@@ -16,16 +16,18 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 # USER CREATION (post save)
 @receiver(post_save, sender=User)
-def user_created(sender, instance, **kwargs):
-	if kwargs["created"]:
+def user_created(sender, instance, created, **kwargs):
+	if created:
+		# Add to is_staff to access admin
+		instance.is_staff = True
 		# Add User to normal User group
 		normal_user_group = Group.objects.get(name='Normal User') 
 		normal_user_group.user_set.add(instance)
-
+		instance.save()
 
 # USER DELETION (post save)
 @receiver(pre_delete, sender=User)
-def user_before_delete(sender, instance, **kwargs):
+def user_before_delete(sender, instance, created, **kwargs):
 	# Cleanup Code 
 	# Currently Stub
     pass

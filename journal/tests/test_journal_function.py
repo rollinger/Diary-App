@@ -28,6 +28,6 @@ def test_my_entries_method():
 @pytest.mark.django_db
 def test_new_user_has_normal_user_group():
     """ Make sure the a newly created user is member of the normal user group.
-    See users.signals
+    and has is_staff flag set. See: users.signals
     """
     pass
