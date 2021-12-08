@@ -23,6 +23,35 @@ class BaseModel(models.Model):
 	updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
 
+class Emotion(BaseModel):
+	""" Emotion Model
+	Defines an Emotion associated to a Journal entry.
+	
+	name: emotion name
+	"""
+
+	class Meta:
+		verbose_name = _("Emotion")
+		verbose_name_plural = _("Emotions")
+		ordering = ("name",)
+	
+	name  = models.CharField(
+        _("Name"),
+        help_text=_("Name of the Emotion"),
+        max_length=255,
+    )
+
+
+class EntryManager(models.Manager):
+	""" Manager for Entries
+
+	my_entries(user): returns a list of entries descendingly sorted
+	"""
+	
+	def my_entries(user):
+		# TODO!
+		pass
+
 class Entry(BaseModel):
 	""" Entry Model
 	Defines an Journal entry. A text at a date from a user
@@ -42,8 +71,6 @@ class Entry(BaseModel):
 	user = models.ForeignKey(
         User,
         help_text=_("Author of the entry"),
-        null=True,
-        blank=True,
         related_name="entries",
         on_delete=models.CASCADE,
     )
@@ -59,6 +86,14 @@ class Entry(BaseModel):
         help_text=_("The journal text"),
         max_length=5000,
     )
+
+	emotions = models.ManyToManyField(
+		_("Entry Text"),
+        help_text=_("The journal text"),
+		null=True, blank=True,
+	)
+
+	objects = EntryManager
 
 	def __str__(self):
 		return _("%s Entry from %s") % (self.user, self.date)
