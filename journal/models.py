@@ -15,10 +15,6 @@ class BaseModel(models.Model):
 	class Meta:
 		abstract = True
 
-	id = models.UUIDField(
-		primary_key=True, default=uuid.uuid4, 
-		editable=False, unique=True, name='id'
-	)
 	created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 	updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
@@ -88,9 +84,9 @@ class Entry(BaseModel):
     )
 
 	emotions = models.ManyToManyField(
-		_("Entry Text"),
+		Emotion,
         help_text=_("The journal text"),
-		null=True, blank=True,
+		blank=True,
 	)
 
 	objects = EntryManager
