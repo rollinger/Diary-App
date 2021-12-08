@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
@@ -78,6 +78,7 @@ class Entry(BaseModel):
 	occasion = models.DateField(
 		_("Occasion"), 
 		help_text=_("Date the entry was made"),
+		blank=True,
 	)
 
 	text = models.TextField(
@@ -99,5 +100,5 @@ class Entry(BaseModel):
 
 	def save(self, *args, **kwargs):
 		if not self.occasion:
-			self.occasion = datetime.date.now()
+			self.occasion = date.today() #FIX: timezone aware...!
 		super(Entry, self).save(*args, **kwargs)
