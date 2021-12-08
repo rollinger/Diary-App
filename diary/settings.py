@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ADMIN_URL = "admin/"
+ADMIN_URL = "/"
 
 # Application definition
 DJANGO_APPS = [
