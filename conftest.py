@@ -3,9 +3,6 @@ from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from users.tests.factories import UserFactory
 
-from timekeeping.models import Project, Task, TaskAssignment
-#from timekeeping.tests.factories import ProjectFactory, TaskFactory, TaskAssignmentFactory
-
 User = get_user_model()
 
 # @pytest.fixture(scope='session')
@@ -16,15 +13,3 @@ User = get_user_model()
 @pytest.fixture
 def user() -> User:
     return UserFactory()
-
-@pytest.fixture
-def project() -> Project:
-    return ProjectFactory()
-
-@pytest.fixture
-def task() -> Task:
-    return TaskFactory()
-
-@pytest.fixture
-def taskassignment() -> TaskAssignment:
-    return TaskAssignmentFactory()
