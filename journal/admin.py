@@ -52,8 +52,10 @@ class EntryAdmin(admin.ModelAdmin):
 		"id",
 		"user",
 		"occasion",
+		"_get_emotion_list",
 	)
 	list_display_links = ("occasion",)
+	list_filter = ("emotions",)
 	readonly_fields = [
         "id",
 		#"emotions",
@@ -84,3 +86,8 @@ class EntryAdmin(admin.ModelAdmin):
             },
         )
 	)
+
+	def _get_emotion_list(self, obj):
+		return "; ".join([e.name for e in obj.emotions.all()])
+	_get_emotion_list.allow_tags = True
+	_get_emotion_list.short_description = _('List of Emotions')
